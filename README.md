@@ -15,7 +15,7 @@ Available methods:
  Query similar software information:
 
 * `term`: the term to search.
-* `country`: the two letter country code to get the app details from. Defaults to `us`. Note this also affects the language of the data.
+* `country`: the two letter country code to get the app details from. Note this also affects the language of the data. 
 * `num`: the amount of elements to retrieve.
 
 Example:
