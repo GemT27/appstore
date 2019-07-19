@@ -7,12 +7,12 @@ go get github.com/TT527/app-store-search
 ```
 
 ## Usage
-[About Country](https://affiliate.itunes.apple.com/resources/documentation/linking-to-the-itunes-music-store/#appendix)
-
 Available methods:
 - [app](#app): Query similar software information.
 - [keyword](#keyword): Query keyword search results.
 - [iTunes](#iTunes): Search results for iTunes.
+
+[About Country Code](https://affiliate.itunes.apple.com/resources/documentation/linking-to-the-itunes-music-store/#appendix)
 ### app
  Query similar software information:
 
