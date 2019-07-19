@@ -1,411 +1,202 @@
-# app-store-search [![Build Status](https://secure.travis-ci.org/facundoolano/app-store-scraper.png)](http://travis-ci.org/facundoolano/app-store-scraper)
-Node.js module to scrape application data from the iTunes/Mac App Store.
+# app-store-search 
+Golang to scrape application data from the iTunes App Store.
 The goal is to provide an interface as close as possible to the
 [google-play-scraper](https://github.com/facundoolano/google-play-scraper) module.
 
 ## Installation
 ```
-npm install app-store-scraper
+go get github.com/TT527/app-store-search
 ```
 
 ## Usage
 Available methods:
-- [app](#app): Retrieves the full detail of an application.
-- [list](#list): Retrieves a list of applications from one of the collections at iTunes.
-- [search](#search): Retrieves a list of apps that results of searching by the given term.
-- [developer](#developer): Retrieves a list of apps by the given developer id.
-- [suggest](#suggest): Given a string returns up to 50 suggestions to complete a search query term.
-- [similar](#similar): Returns the list of "customers also bought" apps shown in the app's detail page.
-- [reviews](#reviews): Retrieves a page of reviews for the app.
-- [ratings](#ratings): Retrieves the ratings for the app.
-
+- [app](#app): Query similar software information.
+- [keyword](#keyword): Query keyword search results.
+- [iTunes](#iTunes): Search results for iTunes.
 ### app
-Retrieves the full detail of an application. Options:
+ Query similar software information:
 
-* `id`: the iTunes "trackId" of the app, for example `553834731` for Candy Crush Saga. Either this or the `appId` should be provided.
-* `appId`: the iTunes "bundleId" of the app, for example `com.midasplayer.apps.candycrushsaga` for Candy Crush Saga. Either this or the `id` should be provided.
+* `term`: the term to search.
 * `country`: the two letter country code to get the app details from. Defaults to `us`. Note this also affects the language of the data.
-+ `ratings`: load additional ratings information like `ratings` number and `histogram`
+* `num`: the amount of elements to retrieve.
 
 Example:
 
 ```javascript
-var store = require('app-store-scraper');
-
-store.app({id: 553834731}).then(console.log).catch(console.log);
-```
-
-Results:
-
-```javascript
-{ id: 553834731,
-  appId: 'com.midasplayer.apps.candycrushsaga',
-  title: 'Candy Crush Saga',
-  url: 'https://itunes.apple.com/us/app/candy-crush-saga/id553834731?mt=8&uo=4',
-  description: 'Candy Crush Saga, from the makers of Candy Crush ...',
-  icon: 'http://is5.mzstatic.com/image/thumb/Purple30/v4/7a/e4/a9/7ae4a9a9-ff68-cbe4-eed6-fe0a246e625d/source/512x512bb.jpg',
-  genres: [ 'Games', 'Entertainment', 'Puzzle', 'Arcade' ],
-  genreIds: [ '6014', '6016', '7012', '7003' ],
-  primaryGenre: 'Games',
-  primaryGenreId: 6014,
-  contentRating: '4+',
-  languages: [ 'EN', 'JA' ],
-  size: '73974859',
-  requiredOsVersion: '5.1.1',
-  released: '2012-11-14T14:41:32Z',
-  updated: '2016-05-31T06:39:52Z',
-  releaseNotes: 'We are back with a tasty Candy Crush Saga update ...',
-  version: '1.76.1',
-  price: 0,
-  currency: 'USD',
-  free: true,
-  developerId: 526656015,
-  developer: 'King',
-  developerUrl: 'https://itunes.apple.com/us/developer/king/id526656015?uo=4',
-  developerWebsite: undefined,
-  score: 4,
-  reviews: 818816,
-  currentVersionScore: 4.5,
-  currentVersionReviews: 1323,
-  screenshots:
-   [ 'http://a3.mzstatic.com/us/r30/Purple49/v4/7a/8a/a0/7a8aa0ec-976d-801f-0bd9-7b753fdaf93c/screen1136x1136.jpeg',
-     ... ],
-  ipadScreenshots:
-   [ 'http://a1.mzstatic.com/us/r30/Purple49/v4/db/45/cf/db45cff9-bdb6-0832-157f-ac3f14565aef/screen480x480.jpeg',
-     ... ],
-  appletvScreenshots: [],
-  supportedDevices:
-   [ 'iPhone-3GS',
-     'iPadWifi',
-     ... ]}
-```
-
-Example with `ratings` option:
-
-```javascript
-var store = require('app-store-scraper');
-
-store.app({id: 553834731, ratings: true}).then(console.log).catch(console.log);
+result,_:=search.App2Json("google", "US",2)
+fmt.Println(result)
 ```
 
 Results:
 
 ```javascript
-{ id: 553834731,
-  appId: 'com.midasplayer.apps.candycrushsaga',
-
-  // ... like above
-
-  ratings: 652230,
-  histogram: {
-    '1': 7004,
-    '2': 6650,
-    '3': 26848,
-    '4': 140625,
-    '5': 471103
-  }
-}
-```
-
-### list
-
-Retrieves a list of applications from one of the collections at iTunes. Options:
-
-* `collection`: the collection to look up. Defaults to `collection.TOP_FREE_IOS`, available options can be found [here](https://github.com/facundoolano/app-store-scraper/blob/master/lib/constants.js#L3).
-* `category`: the category to look up. This is a number associated with the genre for the application. Defaults to no specific category. Available options can be found [here](https://github.com/facundoolano/app-store-scraper/blob/master/lib/constants.js#L19).
-* `country`: the two letter country code to get the list from. Defaults to `us`.
-* `num`: the amount of elements to retrieve. Defaults to `50`, maximum
-  allowed is `200`.
-* `fullDetail`: If this is set to `true`, an extra request will be
-  made to get extra attributes of the resulting applications (like
-  those returned by the `app` method).
-
-Example:
-
-```js
-var store = require('app-store-scraper');
-
-store.list({
-  collection: store.collection.TOP_FREE_IPAD,
-  category: store.category.GAMES_ACTION,
-  num: 2
-})
-.then(console.log)
-.catch(console.log);
-```
-
-Returns:
-
-```js
-[ { id: '1091944550',
-    appId: 'com.hypah.io.slither',
-    title: 'slither.io',
-    icon: 'http://is4.mzstatic.com/image/thumb/Purple30/v4/68/d7/4d/68d74df4-f4e7-d4a4-a8ea-dbab686e5554/mzl.ujmngosn.png/100x100bb-85.png',
-    url: 'https://itunes.apple.com/us/app/slither.io/id1091944550?mt=8&uo=2',
-    price: 0,
-    currency: 'USD',
-    free: true,
-    description: 'Play against other people online! ...',
-    developer: 'Steve Howse',
-    developerUrl: 'https://itunes.apple.com/us/developer/steve-howse/id867992583?mt=8&uo=2',
-    developerId: '867992583',
-    genre: 'Games',
-    genreId: '6014',
-    released: '2016-03-25T10:01:46-07:00' },
-  { id: '1046846443',
-    appId: 'com.ubisoft.hungrysharkworld',
-    title: 'Hungry Shark World',
-    icon: 'http://is5.mzstatic.com/image/thumb/Purple60/v4/08/1a/8d/081a8d06-b4d5-528b-fa8e-f53646b6f797/mzl.ehtjvlft.png/100x100bb-85.png',
-    url: 'https://itunes.apple.com/us/app/hungry-shark-world/id1046846443?mt=8&uo=2',
-    price: 0,
-    currency: 'USD',
-    free: true,
-    description: 'The stunning sequel to Hungry ...',
-    developer: 'Ubisoft',
-    developerUrl: 'https://itunes.apple.com/us/developer/ubisoft/id317644720?mt=8&uo=2',
-    developerId: '317644720',
-    genre: 'Games',
-    genreId: '6014',
-    released: '2016-05-04T09:43:06-07:00' } ]
-```
-
-### search
-
-Retrieves a list of apps that results of searching by the given term. Options:
-
-* `term`: the term to search for (required).
-* `num`: the amount of elements to retrieve. Defaults to `50`.
-* `page`: page of results to retrieve. Defaults to to `1`.
-* `country`: the two letter country code to get the similar apps
-  from. Defaults to `us`.
-* `lang`: language code for the result text. Defaults to `en-us`.
-* `idsOnly`: (optional, defaults to `false`): skip extra lookup request. Search results will contain array of application ids.
-
-Example:
-
-```js
-var store = require('app-store-scraper');
-
-store.search({
-  term: 'panda',
-  num: 2,
-  page: 3,
-  country : 'us',
-  lang: 'lang'
-})
-.then(console.log)
-.catch(console.log);
-```
-
-Results:
-
-```js
-[
-  { id: 903990394,
-    appId: 'com.pandarg.pxmobileapp',
-    title: 'Panda Express Chinese Kitchen',
-    (...)
-  },
-  {
-    id: 700970012,
-    appId: 'com.sgn.pandapop',
-    title: 'Panda Pop',
-    (...)
-  }
-]
-```
-
-### developer
-Retrieves a list of applications by the give developer id. Options:
-
-* `devId`: the iTunes "artistId" of the developer, for example `284882218` for Facebook.
-* `country`: the two letter country code to get the app details from. Defaults to `us`. Note this also affects the language of the data.
-
-Example:
-
-```javascript
-var store = require('app-store-scraper');
-
-store.developer({devId: 284882218}).then(console.log).catch(console.log);
-```
-
-Results:
-
-```js
-[
-  { id: 284882215,
-    appId: 'com.facebook.Facebook',
-    title: 'Facebook',
-    (...)
-  },
-  { id: 454638411,
-    appId: 'com.facebook.Messenger',
-    title: 'Messenger',
-    (...)
-  },
-  (...)
-]
-```
-
-### suggest
-
-Given a string returns up to 50 suggestions to complete a search query term.
-A priority index is also returned which goes from `0` for terms with low traffic
-to `10000` for the most searched terms.
-
-Example:
-
-```js
-var store = require('app-store-scraper');
-
-store.suggest({term: 'panda'}).then(console.log).catch(console.log);
-```
-
-Results:
-
-```js
-[
-  { term: 'panda pop', priority: '7557' },
-  { term: 'panda pop free', priority: '5796' },
-  { term: 'panda', priority: '5512' },
-  { term: 'panda express', priority: '5174' },
-  { term: 'panda games', priority: '4773' },
-  { term: 'panda pop 2', priority: '4695' },
-  ...
-]
-```
-
-### similar
-Returns the list of "customers also bought" apps shown in the app's detail page. Options:
-
-* `id`: the iTunes "trackId" of the app, for example `553834731` for Candy Crush Saga. Either this or the `appId` should be provided.
-* `appId`: the iTunes "bundleId" of the app, for example `com.midasplayer.apps.candycrushsaga` for Candy Crush Saga. Either this or the `id` should be provided.
-
-Example:
-
-```js
-var store = require('app-store-scraper');
-
-store.similar({id: 553834731}).then(console.log).catch(console.log);
-```
-
-Results:
-
-```js
-[
-  {
-    id: 632285588,
-    appId: 'com.nerdyoctopus.dots',
-    title: 'Dots: A Game About Connecting',
-    (...)
-  },
-  {
-    id: 727296976,
-    appId: 'com.sgn.cookiejam',
-    title: 'Cookie Jam',
-    (...)
-  }
-  (...)
-]
-```
-
-### reviews
-
-Retrieves a page of reviews for the app. Options:
-
-* `id`: the iTunes "trackId" of the app, for example `553834731` for Candy Crush Saga. Either this or the `appId` should be provided.
-* `appId`: the iTunes "bundleId" of the app, for example `com.midasplayer.apps.candycrushsaga` for Candy Crush Saga. Either this or the `id` should be provided.
-* `country`: the two letter country code to get the reviews from. Defaults to `us`.
-* `page`: the review page number to retrieve. Defaults to `1`, maximum allowed is `10`.
-* `sort`: the review sort order. Defaults to `store.sort.RECENT`, available options are `store.sort.RECENT` and `store.sort.HELPFUL`.
-
-Example:
-
-```js
-var store = require('app-store-scraper');
-
-store.reviews({
-  appId: 'com.midasplayer.apps.candycrushsaga',
-  sort: store.sort.HELPFUL,
-  page: 2
-})
-.then(console.log)
-.catch(console.log);
-```
-
-Returns:
-
-```js
-[ { id: '1472864600',
-    userName: 'Linda D. Lopez',
-    userUrl: 'https://itunes.apple.com/us/reviews/id324568166',
-    version: '1.80.1',
-    score: 5,
-    title: 'Great way to pass time or unwind',
-    text: 'I was a fan of Bejeweled many moons ago...',
-    url: 'https://itunes.apple.com/us/review?id=553834731&type=Purple%20Software' },,
-  { id: '1472864708',
-    userName: 'Jennamaxkidd',
-    userUrl: 'https://itunes.apple.com/us/reviews/id223990784',
-    version: '1.80.1',
-    score: 1,
-    title: 'Help! THE PROBLEM IS NOT FIXED!',
-    text: 'STILL HAVING THE SAME ISSUE.  It\'s happening again...',
-    url: 'https://itunes.apple.com/us/review?id=553834731&type=Purple%20Software' },
-  (...)
-]
-```
-
-### ratings
-
-Retrieves the ratings for the app. Options:
-
-* `id`: the iTunes "trackId" of the app, for example `553834731` for Candy Crush Saga. Either this or the `appId` should be provided.
-* `appId`: the iTunes "bundleId" of the app, for example `com.midasplayer.apps.candycrushsaga` for Candy Crush Saga. Either this or the `id` should be provided.
-* `country`: the two letter country code to get the reviews from. Defaults to `us`.
-
-Example:
-
-```js
-var store = require('app-store-scraper');
-
-store.ratings({
-  appId: 'com.midasplayer.apps.candycrushsaga',
-})
-.then(console.log)
-.catch(console.log);
-```
-
-Returns:
-
-```js
 {
-  ratings: 652719,
-  histogram: {
-    '1': 7012,
-    '2': 6655,
-    '3': 26876,
-    '4': 140680,
-    '5': 471496
-  }
+    "resultCount": 2,
+    "results": [
+        {
+            "artistViewUrl": "https://apps.apple.com/us/developer/google-llc/id281956209?uo=4",
+            "artworkUrl60": "https://is1-ssl.mzstatic.com/image/thumb/Purple113/v4/ae/0b/95/ae0b95c1-e86a-7710-683d-c444a08cfd18/source/60x60bb.jpg",
+            "artworkUrl100": "https://is1-ssl.mzstatic.com/image/thumb/Purple113/v4/ae/0b/95/ae0b95c1-e86a-7710-683d-c444a08cfd18/source/100x100bb.jpg",
+            "screenshotUrls": [
+                "https://is2-ssl.mzstatic.com/image/thumb/Purple123/v4/cc/95/b4/cc95b4c6-5275-0053-5f9c-e369c97fc0e5/pr_source.png/696x696bb.png",
+                "https://is5-ssl.mzstatic.com/image/thumb/Purple123/v4/ec/20/9b/ec209b97-5041-00c2-1f40-ab6a6c0f4a60/pr_source.png/696x696bb.png",
+                "https://is2-ssl.mzstatic.com/image/thumb/Purple123/v4/9b/d7/ba/9bd7bae0-211b-66f3-0a37-603dc952b30e/pr_source.png/696x696bb.png",
+                "https://is1-ssl.mzstatic.com/image/thumb/Purple123/v4/59/5b/cc/595bcccc-deab-bb2b-4146-a4d08a63e927/pr_source.png/696x696bb.png",
+                "https://is3-ssl.mzstatic.com/image/thumb/Purple113/v4/ab/92/fd/ab92fd2b-65fd-2f9b-586e-b0600ac3a0ec/pr_source.png/696x696bb.png"
+            ],
+            "ipadScreenshotUrls": [
+                "https://is4-ssl.mzstatic.com/image/thumb/Purple123/v4/94/5d/b1/945db107-7cd4-eba6-1fda-eaa778657a96/mzl.mttavtfx.jpg/552x414bb.jpg",
+                "https://is1-ssl.mzstatic.com/image/thumb/Purple113/v4/bb/53/05/bb530509-2d1c-d427-62bc-6ee3cddd77f5/mzl.pwucdfyy.jpg/552x414bb.jpg",
+                "https://is1-ssl.mzstatic.com/image/thumb/Purple113/v4/c8/19/7c/c8197c49-139c-21ff-d919-a95549dcf96b/mzl.jhguvtbs.png/552x414bb.png",
+                "https://is4-ssl.mzstatic.com/image/thumb/Purple113/v4/61/48/fc/6148fc12-ee6e-2041-5047-5f2429fe5d0b/mzl.lgufspcq.jpg/552x414bb.jpg"
+            ],
+            "appletvScreenshotUrls": [],
+            "artworkUrl512": "https://is1-ssl.mzstatic.com/image/thumb/Purple113/v4/ae/0b/95/ae0b95c1-e86a-7710-683d-c444a08cfd18/source/512x512bb.jpg",
+            "advisories": [
+                "Unrestricted Web Access"
+            ],
+            "supportedDevices": [
+                "iPhone5s-iPhone5s",
+                ...
+            ],
+            "isGameCenterEnabled": false,
+            "kind": "software",
+            "features": [
+                "iosUniversal"
+            ],
+            "trackCensoredName": "Google",
+            "trackViewUrl": "https://apps.apple.com/us/app/google/id284815942?uo=4",
+            "contentAdvisoryRating": "17+",
+            "fileSizeBytes": "249401344",
+            "averageUserRatingForCurrentVersion": 4,
+            "languageCodesISO2A": [
+                "AR",
+                "CA",
+                ...
+            ],
+            "sellerUrl": "http://www.google.com/search/about",
+            "userRatingCountForCurrentVersion": 317,
+            "trackContentRating": "17+",
+            "currentVersionReleaseDate": "2019-07-16T22:26:00Z",
+            "releaseNotes": "• Bug fixes and performance improvements\n \nWe are always working to make the app faster and more stable. If you are enjoying the app, please consider leaving a review or rating!",
+            "releaseDate": "2008-07-11T07:00:00Z",
+            "trackId": 284815942,
+            "trackName": "Google",
+            "sellerName": "Google LLC",
+            "primaryGenreId": 6002,
+            "primaryGenreName": "Utilities",
+            "genreIds": [
+                "6002",
+                "6006"
+            ],
+            "currency": "USD",
+            "wrapperType": "software",
+            "version": "78.0",
+            "artistId": 281956209,
+            "artistName": "Google LLC",
+            "genres": [
+                "Utilities",
+                "Reference"
+            ],
+            "price": 0,
+            "description": "The Google app keeps you in the know about things that matter to you. Find quick answers, explore your interests, and stay up to date with Discover. The more you use the Google app, the better it gets.\n\nSearch and browse:\n• Nearby shops and restaurants\n• Live sports scores and schedules\n• Movies times, casts, and reviews\n• Videos and images\n• News, stock information, and more\n• Anything you’d find on the web\n\nGet personalized updates in Discover:\n• Stay in the know about topics that interest you\n• Start your morning with weather and top news\n• Get real-time updates on sports, movies, and events\n• Know as soon as your favorite artists drop new albums\n• Get stories about your interests and hobbies\n• Follow interesting topics, right from Search results \n\nMore ways to access Google:\n• Google Lens — Search what you see with your camera, copy and translate text, find similar apparel, identify plants and animals, scan QR codes and more.\n• iMessage extension — Search and share restaurants, GIFs, and more, without leaving your conversation.\n• Search Google extension — While browsing in Safari, you can share a web page with Google to see suggestions for related content—no need to type anything new in the search box. Tap on the Search Google icon from Safari’s share menu to get started. \n• Gboard — access Google Search, right from your keyboard. Gboard is a keyboard that lets you search and send information, GIFs, emoji, and more—right from your keyboard, in any app. Tap “Gboard” in your app settings to get started. \n• Trending on Google widget — find out what’s trending in your area with our Trending on Google widget. \n\nLearn more about what the Google app can do for you: http://www.google.com/search/about\n\nYour feedback helps us create products you'll love. Join a user research study here:\nhttps://goo.gl/kKQn99",
+            "isVppDeviceBasedLicensingEnabled": true,
+            "bundleId": "com.google.GoogleMobile",
+            "minimumOsVersion": "11.0",
+            "formattedPrice": "Free",
+            "userRatingCount": 699672,
+            "averageUserRating": 4
+        },
+        {
+          ...
+        }
+    ]
 }
 ```
 
-### Memoization
+### keyword
+ Query keyword search results:
 
-Since every library call performs one or multiple requests to
-an iTunes API or web page, sometimes it can be useful to cache the results
-to avoid requesting the same data twice. The `memoized` function returns the
-store object that caches its results:
+* `term`: the term to search.
+* `country`: the two letter country code to get the app details from. Defaults to `us`. Note this also affects the language of the data.
 
-``` javascript
-var store = require('app-store-scraper'); // regular non caching version
-var memoized = require('app-store-scraper').memoized(); // cache with default options
-var memoizedCustom = require('app-store-scraper').memoized({ maxAge: 1000 * 60 }); // cache with default options
 
-memoized.app({id: 553834731}) // will make a request
-  .then(() => memoized.app({id: 553834731})); // will resolve to the cached value without requesting
+```javascript
+result, _ := search.KeyWord2Json("facebook", "US")
+fmt.Println(result)
 ```
 
-The options available are those supported by the [memoizee](https://github.com/medikoo/memoizee) module.
-By default up to 1000 values are cached by each method and they expire after 5 minutes.
+Results:
+
+```javascript
+{
+    "facebook": "10581",
+    "facebook ads manager": "4810",
+    "facebook likes": "4718",
+    "facebook lite": "5371",
+    "facebook marketplace": "6193",
+    "facebook messenger": "5768",
+    "facebook messenger app": "7682",
+    "facebook page": "5184",
+    "facebook page manager": "5308",
+    "facebook video downloader": "4924"
+}
+```
+
+### iTunes
+  Search results for iTunes:
+
+* `term`: the term to search.
+* `country`: the two letter country code to get the app details from. Defaults to `us`. Note this also affects the language of the data.
+
+Example:
+
+```js
+result, _ := search.Itunes2Json("facebook", "US")
+fmt.Println(result)
+```
+
+Returns:
+
+```js
+[
+    {
+        "id": 1,
+        "logo": "https://is4-ssl.mzstatic.com/image/thumb/Purple113/v4/e7/38/00/e7380026-e27f-2e94-9389-c39552b1b02a/source/75x75bb.jpg",
+        "name": "Facebook",
+        "genre": "Social Networking",
+        "href": "https://apps.apple.com/us/app/facebook/id284882215"
+    },
+    {
+        "id": 2,
+        "logo": "https://is2-ssl.mzstatic.com/image/thumb/Purple123/v4/5a/e6/9d/5ae69de8-6f03-9287-0628-e35c7acf62a2/source/75x75bb.jpg",
+        "name": "Messenger",
+        "genre": "Social Networking",
+        "href": "https://apps.apple.com/us/app/messenger/id454638411"
+    },
+    {
+        "id": 3,
+        "logo": "https://is4-ssl.mzstatic.com/image/thumb/Purple123/v4/a1/a2/42/a1a2429e-d9c5-f207-1a50-6e06349749e7/source/75x75bb.jpg",
+        "name": "Instagram",
+        "genre": "Photo & Video",
+        "href": "https://apps.apple.com/us/app/instagram/id389801252"
+    },
+    {
+        "id": 4,
+        "logo": "https://is2-ssl.mzstatic.com/image/thumb/Purple123/v4/f1/39/00/f13900ee-9dbd-86c6-11b1-9c74fb3aff33/source/75x75bb.jpg",
+        "name": "Messenger Kids",
+        "genre": "Social Networking",
+        "href": "https://apps.apple.com/us/app/messenger-kids/id1285713171"
+    },
+    {
+        "id": 5,
+        "logo": "https://is4-ssl.mzstatic.com/image/thumb/Purple113/v4/95/ce/a8/95cea82b-a371-3be3-0e14-5c18e41f943c/source/75x75bb.jpg",
+        "name": "Workplace by Facebook",
+        "genre": "Business",
+        "href": "https://apps.apple.com/us/app/workplace-by-facebook/id944921229"
+    },
+    ...
+    ...
+    ...
+]
+```
