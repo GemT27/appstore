@@ -1,7 +1,5 @@
 # app-store-search 
 Golang to scrape application data from the iTunes App Store.
-The goal is to provide an interface as close as possible to the
-[google-play-scraper](https://github.com/facundoolano/google-play-scraper) module.
 
 ## Installation
 ```
