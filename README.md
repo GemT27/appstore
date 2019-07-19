@@ -7,6 +7,8 @@ go get github.com/TT527/app-store-search
 ```
 
 ## Usage
+[About Country](https://affiliate.itunes.apple.com/resources/documentation/linking-to-the-itunes-music-store/#appendix)
+
 Available methods:
 - [app](#app): Query similar software information.
 - [keyword](#keyword): Query keyword search results.
@@ -15,7 +17,7 @@ Available methods:
  Query similar software information:
 
 * `term`: the term to search.
-* `country`: the two letter country code to get the app details from. Note this also affects the language of the data. 
+* `country`: the two letter country code to get the app details from. Note this also affects the language of the data.
 * `num`: the amount of elements to retrieve.
 
 Example:
@@ -116,7 +118,7 @@ Results:
  Query keyword search results:
 
 * `term`: the term to search.
-* `country`: the two letter country code to get the app details from. Defaults to `us`. Note this also affects the language of the data.
+* `country`: the two letter country code to get the app details from. Note this also affects the language of the data.
 
 
 ```javascript
@@ -145,7 +147,7 @@ Results:
   Search results for iTunes:
 
 * `term`: the term to search.
-* `country`: the two letter country code to get the app details from. Defaults to `us`. Note this also affects the language of the data.
+* `country`: the two letter country code to get the app details from. Note this also affects the language of the data.
 
 Example:
 
