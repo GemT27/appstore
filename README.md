@@ -1,4 +1,4 @@
-# app-store-search 
+# appstore
 Golang to scrape application data from the iTunes App Store.
 
 ## Installation
