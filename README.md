@@ -3,7 +3,7 @@ Golang to scrape application data from the iTunes App Store.
 
 ## Installation
 ```
-go get github.com/TT527/app-store-search
+go get github.com/TT527/appstore
 ```
 
 ## Usage
